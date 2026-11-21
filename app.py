@@ -74,8 +74,12 @@ def go_to(page: str, service: str | None = None):
     st.session_state.active_page = page
 
 
+def on_mobile_select():
+    st.session_state.active_page = st.session_state.mob_page_selector
+
+
 # =====================================================================
-# FULL-WIDTH STYLING & RESPONSIVE NAVBAR / MOBILE BURGER MENU
+# FULL-WIDTH STYLING & RESPONSIVE NAVBAR / MOBILE MENU
 # =====================================================================
 st.markdown(
     """
@@ -94,7 +98,7 @@ header[data-testid="stHeader"] {
     max-width: 100% !important;
     width: 100% !important;
     padding-top: 0.6rem !important;
-    padding-bottom: 3rem !important;
+    padding-bottom: 3.5rem !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
 }
@@ -112,7 +116,7 @@ header[data-testid="stHeader"] {
 .brand-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 11px;
 }
 .brand-icon {
     width: 40px;
@@ -132,6 +136,7 @@ header[data-testid="stHeader"] {
     font-weight: 800;
     color: #1A2530;
     line-height: 1.15;
+    white-space: nowrap;
 }
 .brand-title span { color: #00A8E8; }
 .brand-sub {
@@ -149,7 +154,7 @@ header[data-testid="stHeader"] {
     white-space: nowrap;
 }
 
-/* Desktop Nav Bar — Zero-height marker element so all 5 buttons align flush */
+/* Desktop Nav Bar */
 div[data-testid="stElementContainer"]:has(.desktop-nav-flag) {
     display: none !important;
 }
@@ -180,10 +185,10 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     color: #0088BD !important;
 }
 
-@media (min-width: 769px) {
-    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) {
-        display: none !important;
-    }
+/* Mobile Header & Quick Page Switcher (Hidden on Desktop) */
+.mobile-header,
+div[data-testid="stElementContainer"]:has(.mobile-nav-flag) {
+    display: none !important;
 }
 
 @media (max-width: 768px) {
@@ -197,47 +202,43 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) {
         display: none !important;
     }
-    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) {
+    .mobile-header {
         display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: space-between !important;
+        align-items: center;
+        justify-content: space-between;
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 10px 12px;
-        margin-bottom: 12px;
-        gap: 10px !important;
+        border-radius: 16px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        gap: 10px;
     }
-    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) > div:first-child {
-        flex: 1 1 auto !important;
-        width: auto !important;
-        min-width: 0 !important;
+    .mobile-badge {
+        font-size: 11px;
+        font-weight: 700;
+        color: #0088BD;
+        background: #EBF7FD;
+        padding: 5px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
-    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) > div:last-child {
-        flex: 0 0 auto !important;
-        width: auto !important;
-        display: flex !important;
-        justify-content: flex-end !important;
+    div[data-testid="stElementContainer"]:has(.mobile-nav-flag) {
+        display: block !important;
+        margin-bottom: 14px;
     }
-    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) [data-testid="stPopover"] {
-        width: auto !important;
+    div[data-testid="stElementContainer"]:has(.mobile-nav-flag) div[data-testid="stSelectbox"] > div > div {
+        background: #FFFFFF !important;
+        border: 1.5px solid #00A8E8 !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        color: #1A2530 !important;
     }
-    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) [data-testid="stPopover"] button {
-        border-radius: 10px !important;
-        padding: 0.42rem 0.78rem !important;
-        font-weight: 800 !important;
-        font-size: 16px !important;
-        background: #EBF7FD !important;
-        color: #0088BD !important;
-        border: 1px solid #BAE6FD !important;
-        width: auto !important;
-        min-width: 44px !important;
-    }
-    .brand-title { font-size: 16px; }
+    .brand-title { font-size: 16.5px; }
     .brand-sub { font-size: 11px; }
+    .hero-box { padding: 20px 18px !important; }
     .hero-title { font-size: 25px !important; }
+    .hero-desc { font-size: 14px !important; }
 }
 
 .hero-box {
@@ -410,13 +411,11 @@ for idx, (col, p_name) in enumerate(zip(nav_cols, PAGES)):
         )
 
 # =====================================================================
-# 2. MOBILE COMPACT HEADER + BURGER MENU (☰)
+# 2. MOBILE CLEAN HEADER + INSTANT PAGE SWITCHER
 # =====================================================================
-m_left, m_right = st.columns([4, 1])
-with m_left:
-    st.markdown(
-        f"""
-<span class="mobile-burger-flag" style="display:none;"></span>
+st.markdown(
+    f"""
+<div class="mobile-header">
 <div class="brand-left">
 <div class="brand-icon" style="width:36px;height:36px;font-size:18px;">🧺</div>
 <div>
@@ -424,22 +423,24 @@ with m_left:
 <div class="brand-sub">{BRANCH["branch"]}</div>
 </div>
 </div>
+<div class="mobile-badge">8AM–5PM</div>
+</div>
 """,
-        unsafe_allow_html=True,
-    )
-with m_right:
-    with st.popover("☰"):
-        st.caption("Menu")
-        for p_name in PAGES:
-            is_active = st.session_state.active_page == p_name
-            st.button(
-                p_name,
-                key=f"mob_nav_{p_name}",
-                type="primary" if is_active else "secondary",
-                use_container_width=True,
-                on_click=go_to,
-                args=(p_name,),
-            )
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """<span class="mobile-nav-flag" style="display:none;"></span>""",
+    unsafe_allow_html=True,
+)
+st.selectbox(
+    "Page",
+    PAGES,
+    index=PAGES.index(st.session_state.active_page),
+    key="mob_page_selector",
+    on_change=on_mobile_select,
+    label_visibility="collapsed",
+)
 
 page = st.session_state.active_page
 
