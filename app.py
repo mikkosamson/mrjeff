@@ -148,12 +148,18 @@ header[data-testid="stHeader"] {
     border-radius: 999px;
     white-space: nowrap;
 }
+
+/* Desktop Nav Bar — Zero-height marker element so all 5 buttons align flush */
+div[data-testid="stElementContainer"]:has(.desktop-nav-flag) {
+    display: none !important;
+}
 div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 14px;
     padding: 8px;
     margin-bottom: 14px;
+    align-items: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button {
     border-radius: 10px !important;
@@ -161,6 +167,7 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button {
     font-size: 13.5px !important;
     padding: 0.55rem 0.75rem !important;
     width: 100% !important;
+    margin: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="secondary"] {
     background: #F8FAFC !important;
@@ -172,11 +179,13 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     border-color: #00A8E8 !important;
     color: #0088BD !important;
 }
+
 @media (min-width: 769px) {
     div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) {
         display: none !important;
     }
 }
+
 @media (max-width: 768px) {
     .block-container,
     [data-testid="stAppViewBlockContainer"],
@@ -197,9 +206,9 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 14px;
-        padding: 8px 12px;
+        padding: 10px 12px;
         margin-bottom: 12px;
-        gap: 8px !important;
+        gap: 10px !important;
     }
     div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) > div:first-child {
         flex: 1 1 auto !important;
@@ -209,20 +218,28 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) > div:last-child {
         flex: 0 0 auto !important;
         width: auto !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) [data-testid="stPopover"] {
+        width: auto !important;
     }
     div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) [data-testid="stPopover"] button {
         border-radius: 10px !important;
-        padding: 0.45rem 0.85rem !important;
+        padding: 0.42rem 0.78rem !important;
         font-weight: 800 !important;
         font-size: 16px !important;
         background: #EBF7FD !important;
         color: #0088BD !important;
         border: 1px solid #BAE6FD !important;
+        width: auto !important;
+        min-width: 44px !important;
     }
-    .brand-title { font-size: 16.5px; }
+    .brand-title { font-size: 16px; }
     .brand-sub { font-size: 11px; }
     .hero-title { font-size: 25px !important; }
 }
+
 .hero-box {
     background: linear-gradient(135deg, #FFFFFF 0%, #E8F6FD 100%);
     border: 1px solid #D4ECF9;
