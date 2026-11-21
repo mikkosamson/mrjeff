@@ -23,8 +23,7 @@ BRANCH = {
     "landline": "+63270899423",
     "facebook": "https://www.facebook.com/mrjeff.qc.erod",
     "messenger": "https://www.facebook.com/mrjeff.qc.erod",
-    # Optional: Paste a Google Apps Script Web App URL to auto-log orders to Google Sheets
-    "sheets_webhook_url": "",
+    "sheets_webhook_url": "https://script.google.com/macros/s/AKfycbxSh3nYE5596XVD1mIFU1E5_7eNYX6zx2DPQyd5VHW06Fxs_gnurSH3Nd3WMUeDwN5Zjg/exec",
 }
 
 PAGES = ["Home", "Subscription Plans", "Rates & Services", "Schedule Pickup", "FAQ & Store Info"]
