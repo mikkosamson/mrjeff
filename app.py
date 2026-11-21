@@ -30,7 +30,7 @@ BRANCH = {
     "mobile": "+639772432513",
     "landline": "+63270899423",
     "facebook": "https://www.facebook.com/mrjeff.qc.erod",
-    "messenger": "https://www.facebook.com/mrjeff.qc.erod",
+    "messenger": "https://m.me/mrjeff.qc.erod",
     "sheets_webhook_url": get_webhook_url(),
 }
 
