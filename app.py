@@ -573,4 +573,281 @@ elif page == "Subscription Plans":
         with col:
             card_cls = "ui-card featured" if p["featured"] else "ui-card"
             badge_html = '<div class="pop-pill">Most Popular</div>' if p["featured"] else ""
-            feats_html = "".join(f"<li>{item}</li>" for
+            feats_html = "".join(f"<li>{item}</li>" for item in p["features"])
+            card_html = f"""
+<div class="{card_cls}">
+{badge_html}
+<div class="card-tag">{p["tag"]}</div>
+<div class="card-title">{p["name"]}</div>
+<div class="card-price">{p["price"]} <span>/ plan</span></div>
+<ul class="feat-list">{feats_html}</ul>
+</div>
+"""
+            st.markdown(card_html, unsafe_allow_html=True)
+            st.button(
+                f"Select {p['name']}",
+                key=f"btn_{p['name']}",
+                type="primary" if p["featured"] else "secondary",
+                use_container_width=True,
+                on_click=go_to,
+                args=("Schedule Pickup", p["service_key"]),
+            )
+
+# =====================================================================
+# PAGE 3: RATES & SERVICES
+# =====================================================================
+elif page == "Rates & Services":
+    st.markdown("## Per-Bag, Specialty & Individual Rates")
+    st.caption("Pay-as-you-go pricing • No subscription required")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(
+            """
+<div class="ui-card">
+<div class="card-title">Regular Wash &amp; Fold</div>
+<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Everyday clothes, shirts, shorts, towels &amp; bedsheets</p>
+<div class="rate-row"><div><strong>1 Large Bag</strong><small>6–9 kg capacity</small></div><div class="rate-price">₱450</div></div>
+<div class="rate-row" style="margin-bottom:0;"><div><strong>1 Small Bag</strong><small>1–5 kg capacity</small></div><div class="rate-price">₱350</div></div>
+</div>
+<div class="ui-card">
+<div class="card-title">Handwash &amp; Bulky Items</div>
+<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Gentle manual care &amp; oversized household items</p>
+<div class="rate-row"><div><strong>Handwash</strong><small>Delicate garments (per kg)</small></div><div class="rate-price">₱120 / kg</div></div>
+<div class="rate-row"><div><strong>Comforters</strong><small>Depends on size &amp; thickness</small></div><div class="rate-price">₱450–₱550</div></div>
+<div class="rate-row"><div><strong>Rugs</strong><small>Deep clean (per kg)</small></div><div class="rate-price">₱120 / kg</div></div>
+<div class="rate-row" style="margin-bottom:0;"><div><strong>Stuffed Toys</strong><small>Depends on size</small></div><div class="rate-price">₱250–₱450</div></div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+    with col2:
+        st.markdown(
+            """
+<div class="ui-card">
+<div class="card-title">Heavywash</div>
+<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Deep wash for denim, thick towels, uniforms &amp; heavy fabrics</p>
+<div class="rate-row"><div><strong>1 Large Bag</strong><small>6–8 kg capacity</small></div><div class="rate-price">₱600</div></div>
+<div class="rate-row" style="margin-bottom:0;"><div><strong>1 Small Bag</strong><small>1–5 kg capacity</small></div><div class="rate-price">₱400</div></div>
+</div>
+<div class="ui-card">
+<div class="card-title">Iron Services &amp; Dry Cleaning</div>
+<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Crisp pressing &amp; specialized garment care</p>
+<div class="rate-row"><div><strong>Iron Services</strong><small>Per piece pressing</small></div><div class="rate-price">₱70 / pc</div></div>
+<div class="rate-row" style="margin-bottom:0;"><div><strong>Dry Cleaning</strong><small>Price depends on item &amp; material</small></div><div class="rate-price">Custom Quote</div></div>
+</div>
+<div class="ui-card" style="background:#F4F8FB;">
+<div class="card-title" style="font-size:16px;">Delivery &amp; Accepted Payments</div>
+<p style="font-size:13px; color:#475569; margin-bottom:8px;">Standard delivery is <strong>2 days after pickup</strong>. Same-day delivery is available for an additional <strong>₱100–₱200</strong>.</p>
+<div>
+<span class="pay-chip">Cash</span>
+<span class="pay-chip">GCash</span>
+<span class="pay-chip">Maya</span>
+<span class="pay-chip">BPI</span>
+<span class="pay-chip">BDO</span>
+</div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+    st.button(
+        "Schedule a Pickup →",
+        type="primary",
+        use_container_width=True,
+        on_click=go_to,
+        args=("Schedule Pickup",),
+    )
+
+# =====================================================================
+# PAGE 4: SCHEDULE PICKUP (Interactive Booking)
+# =====================================================================
+elif page == "Schedule Pickup":
+    st.markdown("## Schedule Your Laundry Pickup")
+    st.caption(f"{BRANCH['address']} • {BRANCH['hours']}")
+
+    b1, b2, b3 = st.columns(3)
+    with b1:
+        st.link_button(
+            f"Chat on Viber ({BRANCH['viber']})",
+            f"viber://chat?number={urllib.parse.quote(BRANCH['viber'])}",
+            use_container_width=True,
+        )
+    with b2:
+        st.link_button(
+            "Facebook Messenger",
+            BRANCH["messenger"],
+            use_container_width=True,
+        )
+    with b3:
+        st.link_button(
+            f"Call Mobile ({BRANCH['mobile']})",
+            f"tel:{BRANCH['mobile']}",
+            use_container_width=True,
+        )
+
+    st.markdown("---")
+
+    with st.form("pickup_booking_form"):
+        selected_srv = st.selectbox(
+            "Service or Subscription Plan",
+            SERVICES,
+            key="selected_service",
+        )
+
+        f1, f2 = st.columns(2)
+        with f1:
+            cust_name = st.text_input("Full Name *", placeholder="Juan Dela Cruz")
+            pickup_date = st.date_input(
+                "Preferred Pickup Date (Mon–Sat)",
+                min_value=datetime.date.today(),
+            )
+            delivery_speed = st.selectbox(
+                "Delivery Turnaround",
+                [
+                    "Standard Delivery (2 days after pickup)",
+                    "Same-Day Delivery (+₱100–₱200 fee)",
+                ],
+            )
+        with f2:
+            cust_phone = st.text_input("Mobile / Viber Number *", placeholder="0917 123 4567")
+            pickup_slot = st.selectbox(
+                "Preferred Time Window (8AM–5PM)",
+                [
+                    "Morning (8:00 AM – 12:00 PM)",
+                    "Afternoon (1:00 PM – 5:00 PM)",
+                ],
+            )
+            payment_method = st.selectbox(
+                "Preferred Payment Method",
+                ["GCash", "Maya", "Cash", "Bank Transfer — BPI", "Bank Transfer — BDO"],
+            )
+
+        cust_address = st.text_input(
+            "Complete Pickup Address *",
+            placeholder="Unit / House No., Street, Barangay, Quezon City",
+        )
+        notes = st.text_input(
+            "Special Instructions (Optional)",
+            placeholder="e.g., Gate code, landmark, or estimated kg/pieces",
+        )
+
+        submitted = st.form_submit_button(
+            "Generate Booking Summary",
+            type="primary",
+            use_container_width=True,
+        )
+
+    if submitted:
+        if not cust_name.strip() or not cust_phone.strip() or not cust_address.strip():
+            st.error("Please fill in your Name, Mobile/Viber Number, and Pickup Address.")
+        else:
+            order_summary = (
+                f"Hi Mr Jeff Laundry ({BRANCH['branch']})! I'd like to schedule a pickup:\n"
+                f"• Service/Plan: {selected_srv}\n"
+                f"• Name: {cust_name.strip()}\n"
+                f"• Mobile: {cust_phone.strip()}\n"
+                f"• Address: {cust_address.strip()}\n"
+                f"• Pickup Date: {pickup_date.strftime('%Y-%m-%d')}\n"
+                f"• Time Slot: {pickup_slot}\n"
+                f"• Delivery: {delivery_speed}\n"
+                f"• Payment Method: {payment_method}"
+            )
+            if notes.strip():
+                order_summary += f"\n• Notes: {notes.strip()}"
+
+            if BRANCH["sheets_webhook_url"]:
+                try:
+                    requests.post(
+                        BRANCH["sheets_webhook_url"],
+                        json={
+                            "timestamp": datetime.datetime.now().isoformat(),
+                            "service": selected_srv,
+                            "name": cust_name.strip(),
+                            "phone": cust_phone.strip(),
+                            "address": cust_address.strip(),
+                            "pickup_date": str(pickup_date),
+                            "time_slot": pickup_slot,
+                            "delivery": delivery_speed,
+                            "payment": payment_method,
+                            "notes": notes.strip(),
+                        },
+                        timeout=5,
+                    )
+                except Exception:
+                    pass
+
+            st.success(
+                "Your pickup summary is ready! Tap the copy icon at the top-right of the box below, then send it via Viber or Messenger."
+            )
+            st.code(order_summary, language=None)
+
+            a1, a2 = st.columns(2)
+            with a1:
+                st.link_button(
+                    "Open Viber & Paste Order →",
+                    f"viber://chat?number={urllib.parse.quote(BRANCH['viber'])}",
+                    type="primary",
+                    use_container_width=True,
+                )
+            with a2:
+                st.link_button(
+                    "Open Facebook Messenger →",
+                    BRANCH["messenger"],
+                    use_container_width=True,
+                )
+
+# =====================================================================
+# PAGE 5: FAQ & STORE INFO
+# =====================================================================
+elif page == "FAQ & Store Info":
+    left, right = st.columns([1.15, 0.85])
+
+    with left:
+        st.markdown("## Frequently Asked Questions")
+        with st.expander("When will my laundry be delivered after pickup?", expanded=True):
+            st.write(
+                "We usually deliver your clean, folded laundry **2 days after pickup**. "
+                "If you need your clothes back on the same day, we offer **same-day delivery** "
+                "for an additional fee of **₱100–₱200**."
+            )
+        with st.expander("What are your accepted payment methods?"):
+            st.write(
+                "You can pay via **Cash**, **GCash**, **Maya**, or **Bank Transfer (BPI or BDO)**."
+            )
+        with st.expander("What is the difference between a Small Bag and a Large Bag?"):
+            st.write(
+                "A **Small Bag** fits **1–5 kg** (₱350 Regular / ₱400 Heavywash), while a **Large Bag** "
+                "fits **6–9 kg** for Regular Wash & Fold (₱450) or **6–8 kg** for Heavywash (₱600)."
+            )
+        with st.expander("How is Dry Cleaning priced?"):
+            st.write(
+                "Dry cleaning rates depend on the specific garment type and fabric material "
+                "(such as barong, suits, gowns, or delicate coats). Message us a photo on Viber "
+                "or Facebook Messenger for an exact quote."
+            )
+
+    with right:
+        st.markdown("## Branch & Contact Details")
+        st.markdown(
+            f"""
+<div class="ui-card">
+<div class="card-tag">Branch Location</div>
+<div class="card-title">{BRANCH["branch"]}</div>
+<p style="font-size:13.5px; color:#334155; margin-bottom:12px;">{BRANCH["address"]}</p>
+<p style="font-size:13.5px; margin-bottom:6px;"><strong>Hours:</strong> {BRANCH["hours"]}</p>
+<p style="font-size:13.5px; margin-bottom:6px;"><strong>Viber / Mobile:</strong> <a href="tel:{BRANCH["mobile"]}" style="color:#0088BD; text-decoration:none; font-weight:700;">{BRANCH["mobile"]}</a></p>
+<p style="font-size:13.5px; margin-bottom:6px;"><strong>Landline:</strong> <a href="tel:{BRANCH["landline"]}" style="color:#0088BD; text-decoration:none; font-weight:700;">{BRANCH["landline"]}</a></p>
+<p style="font-size:13.5px; margin-bottom:12px;"><strong>Facebook:</strong> <a href="{BRANCH["facebook"]}" target="_blank" style="color:#0088BD; text-decoration:none; font-weight:700;">facebook.com/mrjeff.qc.erod</a></p>
+<div>
+<span class="pay-chip">Cash</span>
+<span class="pay-chip">GCash</span>
+<span class="pay-chip">Maya</span>
+<span class="pay-chip">BPI</span>
+<span class="pay-chip">BDO</span>
+</div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
