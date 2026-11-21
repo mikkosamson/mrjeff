@@ -69,38 +69,45 @@ def go_to(page: str, service: str | None = None):
 
 
 # =====================================================================
-# CUSTOM STYLING (Standalone Website Look & Mobile Optimization)
+# FULL-WIDTH STYLING & RESPONSIVE NAVBAR / MOBILE BURGER MENU
 # =====================================================================
 st.markdown(
     """
 <style>
+/* Hide Streamlit default header/toolbar */
 #MainMenu, footer, header[data-testid="stHeader"], [data-testid="stToolbar"] {
     visibility: hidden;
     height: 0;
 }
-.block-container {
-    max-width: 1060px;
-    padding-top: 1.1rem !important;
-    padding-bottom: 2.5rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+
+/* Remove huge left/right borders across all screen sizes */
+.block-container,
+[data-testid="stAppViewBlockContainer"],
+[data-testid="stMainBlockContainer"] {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-top: 0 !important;
+    padding-bottom: 3rem !important;
+    padding-left: 2.2rem !important;
+    padding-right: 2.2rem !important;
 }
 
-/* Brand Header */
-.brand-bar {
+/* Full-bleed top header strip */
+.full-header {
+    background: #FFFFFF;
+    margin-left: -2.2rem;
+    margin-right: -2.2rem;
+    padding: 14px 2.2rem 12px;
+    border-bottom: 1px solid #E2E8F0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 12px;
-    padding-bottom: 12px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #E2E8F0;
 }
 .brand-left {
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 12px;
 }
 .brand-icon {
     width: 40px;
@@ -112,6 +119,7 @@ st.markdown(
     align-items: center;
     justify-content: center;
     font-size: 20px;
+    flex-shrink: 0;
     box-shadow: 0 4px 12px rgba(0, 168, 232, 0.25);
 }
 .brand-title {
@@ -128,54 +136,107 @@ st.markdown(
 }
 .brand-hours {
     font-size: 12.5px;
-    font-weight: 600;
+    font-weight: 700;
     color: #0088BD;
     background: #EBF7FD;
-    padding: 6px 13px;
+    padding: 6px 14px;
     border-radius: 999px;
+    white-space: nowrap;
 }
 
-/* Pill Navigation Bar (Hide default radio circles) */
-div[data-testid="stRadio"] > div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+/* Full-width Desktop Navigation Bar */
+div[data-testid="stVerticalBlock"]:has(.desktop-nav-marker) {
     background: #FFFFFF;
-    padding: 6px;
-    border-radius: 14px;
-    border: 1px solid #E2E8F0;
-    margin-bottom: 12px;
+    margin-left: -2.2rem;
+    margin-right: -2.2rem;
+    padding: 10px 2.2rem 12px;
+    border-bottom: 1px solid #E2E8F0;
+    margin-bottom: 18px;
 }
-div[data-testid="stRadio"] label {
-    background: transparent;
-    padding: 7px 15px !important;
+div[data-testid="stVerticalBlock"]:has(.desktop-nav-marker) button {
     border-radius: 10px !important;
-    margin: 0 !important;
-    cursor: pointer;
-    transition: all 0.15s ease;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    padding: 0.55rem 0.75rem !important;
+    width: 100% !important;
 }
-div[data-testid="stRadio"] label > div:first-child {
+div[data-testid="stVerticalBlock"]:has(.desktop-nav-marker) button[kind="secondary"] {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #334155 !important;
+}
+div[data-testid="stVerticalBlock"]:has(.desktop-nav-marker) button[kind="secondary"]:hover {
+    background: #EBF7FD !important;
+    border-color: #00A8E8 !important;
+    color: #0088BD !important;
+}
+
+/* Mobile Header + Burger Menu (Hidden on Desktop) */
+div[data-testid="stVerticalBlock"]:has(.mobile-nav-marker) {
     display: none !important;
 }
-div[data-testid="stRadio"] label:has(input:checked) {
-    background: #00A8E8 !important;
-}
-div[data-testid="stRadio"] label:has(input:checked) p {
-    color: #FFFFFF !important;
-    font-weight: 700 !important;
-}
-div[data-testid="stRadio"] label p {
-    font-size: 13.5px !important;
-    font-weight: 600 !important;
-    color: #475569 !important;
+
+@media (max-width: 768px) {
+    .block-container,
+    [data-testid="stAppViewBlockContainer"],
+    [data-testid="stMainBlockContainer"] {
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+    }
+
+    /* Hide desktop header & desktop nav bar on mobile */
+    .desktop-only-header,
+    div[data-testid="stVerticalBlock"]:has(.desktop-nav-marker) {
+        display: none !important;
+    }
+
+    /* Show mobile sticky bar with burger menu */
+    div[data-testid="stVerticalBlock"]:has(.mobile-nav-marker) {
+        display: block !important;
+        background: #FFFFFF;
+        margin-left: -0.9rem;
+        margin-right: -0.9rem;
+        padding: 10px 0.9rem;
+        border-bottom: 1px solid #E2E8F0;
+        margin-bottom: 14px;
+    }
+    div[data-testid="stVerticalBlock"]:has(.mobile-nav-marker) [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+    div[data-testid="stVerticalBlock"]:has(.mobile-nav-marker) [data-testid="stHorizontalBlock"] > div:first-child {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+    div[data-testid="stVerticalBlock"]:has(.mobile-nav-marker) [data-testid="stHorizontalBlock"] > div:last-child {
+        flex: 0 0 auto !important;
+        width: auto !important;
+    }
+    div[data-testid="stVerticalBlock"]:has(.mobile-nav-marker) [data-testid="stPopover"] button {
+        border-radius: 10px !important;
+        padding: 0.45rem 0.85rem !important;
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        background: #EBF7FD !important;
+        color: #0088BD !important;
+        border: 1px solid #BAE6FD !important;
+    }
+    .brand-title { font-size: 16.5px; }
+    .brand-sub { font-size: 11px; }
+    .hero-title { font-size: 25px !important; }
 }
 
-/* Hero & Cards */
+/* Hero & Content Cards */
 .hero-box {
     background: linear-gradient(135deg, #FFFFFF 0%, #E8F6FD 100%);
     border: 1px solid #D4ECF9;
     border-radius: 22px;
-    padding: 28px 24px;
+    padding: 30px 26px;
     margin-bottom: 16px;
 }
 .eyebrow {
@@ -189,7 +250,7 @@ div[data-testid="stRadio"] label p {
     margin-bottom: 12px;
 }
 .hero-title {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 800;
     line-height: 1.18;
     color: #1A2530;
@@ -197,15 +258,16 @@ div[data-testid="stRadio"] label p {
 }
 .hero-title span { color: #00A8E8; }
 .hero-desc {
-    font-size: 15px;
+    font-size: 15.5px;
     color: #475569;
     line-height: 1.55;
     margin-bottom: 14px;
+    max-width: 780px;
 }
 .trust-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 16px;
     font-size: 13px;
     font-weight: 600;
     color: #334155;
@@ -303,10 +365,10 @@ div.stButton > button {
 )
 
 # =====================================================================
-# TOP BRAND HEADER & NAVIGATION BAR
+# 1. DESKTOP FULL-WIDTH HEADER + FULL-WIDTH NAVIGATION BAR
 # =====================================================================
 st.markdown(
-    f'<div class="brand-bar">'
+    f'<div class="full-header desktop-only-header">'
     f'<div class="brand-left">'
     f'<div class="brand-icon">🧺</div>'
     f'<div><div class="brand-title">Mr Jeff <span>Laundry</span></div>'
@@ -317,13 +379,49 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.radio(
-    "Navigation",
-    PAGES,
-    horizontal=True,
-    label_visibility="collapsed",
-    key="active_page",
-)
+with st.container():
+    st.markdown('<span class="desktop-nav-marker"></span>', unsafe_allow_html=True)
+    nav_cols = st.columns(len(PAGES), gap="small")
+    for col, p_name in zip(nav_cols, PAGES):
+        with col:
+            is_active = st.session_state.active_page == p_name
+            st.button(
+                p_name,
+                key=f"desk_nav_{p_name}",
+                type="primary" if is_active else "secondary",
+                use_container_width=True,
+                on_click=go_to,
+                args=(p_name,),
+            )
+
+# =====================================================================
+# 2. MOBILE COMPACT HEADER + BURGER MENU (☰)
+# =====================================================================
+with st.container():
+    st.markdown('<span class="mobile-nav-marker"></span>', unsafe_allow_html=True)
+    m_left, m_right = st.columns([4, 1])
+    with m_left:
+        st.markdown(
+            f'<div class="brand-left">'
+            f'<div class="brand-icon" style="width:36px;height:36px;font-size:18px;">🧺</div>'
+            f'<div><div class="brand-title">Mr Jeff <span>Laundry</span></div>'
+            f'<div class="brand-sub">{BRANCH["branch"]}</div></div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+    with m_right:
+        with st.popover("☰"):
+            st.caption("Navigate")
+            for p_name in PAGES:
+                is_active = st.session_state.active_page == p_name
+                st.button(
+                    p_name,
+                    key=f"mob_nav_{p_name}",
+                    type="primary" if is_active else "secondary",
+                    use_container_width=True,
+                    on_click=go_to,
+                    args=(p_name,),
+                )
 
 page = st.session_state.active_page
 
