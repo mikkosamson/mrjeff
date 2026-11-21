@@ -31,10 +31,16 @@ BRANCH = {
     "landline": "+63270899423",
     "facebook": "https://www.facebook.com/mrjeff.qc.erod",
     "messenger": "https://www.facebook.com/mrjeff.qc.erod",
-    "sheets_webhook_url": st.secrets.get("SHEETS_WEBHOOK_URL", ""),
+    "sheets_webhook_url": get_webhook_url(),
 }
 
-PAGES = ["Home", "Subscription Plans", "Rates & Services", "Schedule Pickup", "FAQ & Store Info"]
+PAGES = [
+    "Home",
+    "Subscription Plans",
+    "Rates & Services",
+    "Schedule Pickup",
+    "FAQ & Store Info",
+]
 
 SERVICES = [
     "Plan Max — 4 Large Bags (up to 8–9 kg each) — ₱1,680",
@@ -74,7 +80,6 @@ def go_to(page: str, service: str | None = None):
 st.markdown(
     """
 <style>
-/* Hide Streamlit default chrome */
 #MainMenu, footer, [data-testid="stToolbar"], [data-testid="stDecoration"] {
     display: none !important;
 }
@@ -83,8 +88,6 @@ header[data-testid="stHeader"] {
     height: 0 !important;
     min-height: 0 !important;
 }
-
-/* Full-width container (removes large left/right side margins) */
 .block-container,
 [data-testid="stAppViewBlockContainer"],
 [data-testid="stMainBlockContainer"] {
@@ -95,8 +98,6 @@ header[data-testid="stHeader"] {
     padding-left: 2rem !important;
     padding-right: 2rem !important;
 }
-
-/* Desktop Brand Header */
 .desktop-header {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
@@ -147,8 +148,6 @@ header[data-testid="stHeader"] {
     border-radius: 999px;
     white-space: nowrap;
 }
-
-/* Full-width Desktop Navigation Bar */
 div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
@@ -173,15 +172,11 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     border-color: #00A8E8 !important;
     color: #0088BD !important;
 }
-
-/* Hide mobile burger row on desktop */
 @media (min-width: 769px) {
     div[data-testid="stHorizontalBlock"]:has(.mobile-burger-flag) {
         display: none !important;
     }
 }
-
-/* Mobile Responsive Rules (Burger Menu + Tight Padding) */
 @media (max-width: 768px) {
     .block-container,
     [data-testid="stAppViewBlockContainer"],
@@ -228,8 +223,6 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     .brand-sub { font-size: 11px; }
     .hero-title { font-size: 25px !important; }
 }
-
-/* Hero & Content Cards */
 .hero-box {
     background: linear-gradient(135deg, #FFFFFF 0%, #E8F6FD 100%);
     border: 1px solid #D4ECF9;
@@ -366,14 +359,18 @@ div.stButton > button {
 # 1. DESKTOP FULL-WIDTH HEADER + FULL-WIDTH NAVIGATION BAR
 # =====================================================================
 st.markdown(
-    f'<div class="desktop-header">'
-    f'<div class="brand-left">'
-    f'<div class="brand-icon">🧺</div>'
-    f'<div><div class="brand-title">Mr Jeff <span>Laundry</span></div>'
-    f'<div class="brand-sub">{BRANCH["branch"]}</div></div>'
-    f'</div>'
-    f'<div class="brand-hours">Mon–Sat &bull; 8:00 AM – 5:00 PM</div>'
-    f'</div>',
+    f"""
+<div class="desktop-header">
+<div class="brand-left">
+<div class="brand-icon">🧺</div>
+<div>
+<div class="brand-title">Mr Jeff <span>Laundry</span></div>
+<div class="brand-sub">{BRANCH["branch"]}</div>
+</div>
+</div>
+<div class="brand-hours">Mon–Sat &bull; 8:00 AM – 5:00 PM</div>
+</div>
+""",
     unsafe_allow_html=True,
 )
 
@@ -381,4 +378,199 @@ nav_cols = st.columns(len(PAGES), gap="small")
 for idx, (col, p_name) in enumerate(zip(nav_cols, PAGES)):
     with col:
         if idx == 0:
-            st.markdown('<span class="desktop
+            st.markdown(
+                """<span class="desktop-nav-flag" style="display:none;"></span>""",
+                unsafe_allow_html=True,
+            )
+        is_active = st.session_state.active_page == p_name
+        st.button(
+            p_name,
+            key=f"desk_nav_{p_name}",
+            type="primary" if is_active else "secondary",
+            use_container_width=True,
+            on_click=go_to,
+            args=(p_name,),
+        )
+
+# =====================================================================
+# 2. MOBILE COMPACT HEADER + BURGER MENU (☰)
+# =====================================================================
+m_left, m_right = st.columns([4, 1])
+with m_left:
+    st.markdown(
+        f"""
+<span class="mobile-burger-flag" style="display:none;"></span>
+<div class="brand-left">
+<div class="brand-icon" style="width:36px;height:36px;font-size:18px;">🧺</div>
+<div>
+<div class="brand-title">Mr Jeff <span>Laundry</span></div>
+<div class="brand-sub">{BRANCH["branch"]}</div>
+</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+with m_right:
+    with st.popover("☰"):
+        st.caption("Menu")
+        for p_name in PAGES:
+            is_active = st.session_state.active_page == p_name
+            st.button(
+                p_name,
+                key=f"mob_nav_{p_name}",
+                type="primary" if is_active else "secondary",
+                use_container_width=True,
+                on_click=go_to,
+                args=(p_name,),
+            )
+
+page = st.session_state.active_page
+
+# =====================================================================
+# PAGE 1: HOME
+# =====================================================================
+if page == "Home":
+    st.markdown(
+        """
+<div class="hero-box">
+<div class="eyebrow">Door-to-Door Laundry &amp; Dry Cleaning</div>
+<div class="hero-title">The subscription that does the <span>laundry</span> for you</div>
+<div class="hero-desc">Monthly laundry plans and per-bag pickup &amp; delivery along E. Rodriguez Sr. Ave. Fresh, neatly folded clothes delivered back to your door 2 days after pickup.</div>
+<div class="trust-row">
+<span>● 2-Day Standard Delivery</span>
+<span>● Same-Day Option (+₱100–₱200)</span>
+<span>● Cash, GCash, Maya, BPI &amp; BDO</span>
+</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    c1, c2, c3 = st.columns([1.2, 1.2, 1.6])
+    with c1:
+        st.button(
+            "Schedule Pickup →",
+            type="primary",
+            use_container_width=True,
+            on_click=go_to,
+            args=("Schedule Pickup", SERVICES[0]),
+        )
+    with c2:
+        st.button(
+            "View Subscription Plans",
+            use_container_width=True,
+            on_click=go_to,
+            args=("Subscription Plans",),
+        )
+    with c3:
+        st.button(
+            "View Per-Bag & Individual Rates",
+            use_container_width=True,
+            on_click=go_to,
+            args=("Rates & Services",),
+        )
+
+    st.markdown("### How It Works")
+    s1, s2, s3 = st.columns(3)
+    with s1:
+        st.markdown(
+            """
+<div class="ui-card">
+<div class="card-tag">Step 1</div>
+<div class="card-title">Schedule Pickup</div>
+<p style="font-size:13.5px; color:#475569; margin:0;">Choose your plan or per-bag load and submit your pickup date &amp; time window.</p>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+    with s2:
+        st.markdown(
+            """
+<div class="ui-card">
+<div class="card-tag">Step 2</div>
+<div class="card-title">Wash, Iron &amp; Fold</div>
+<p style="font-size:13.5px; color:#475569; margin:0;">Washed separately in sanitized machines, carefully pressed or folded, and packed fresh.</p>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+    with s3:
+        st.markdown(
+            """
+<div class="ui-card">
+<div class="card-tag">Step 3</div>
+<div class="card-title">Delivered in 2 Days</div>
+<p style="font-size:13.5px; color:#475569; margin:0;">Delivered right to your door 2 days after pickup, or same-day express when needed.</p>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+# =====================================================================
+# PAGE 2: SUBSCRIPTION PLANS
+# =====================================================================
+elif page == "Subscription Plans":
+    st.markdown("## Monthly Plan Subscriptions")
+    st.caption("Bundled bags & ironing packages • Standard 2-day delivery after pickup")
+
+    plans = [
+        {
+            "tag": "Light Load",
+            "name": "Plan Lite",
+            "price": "₱1,280",
+            "featured": False,
+            "features": [
+                "Up to 5 kg per bag",
+                "Dedicated hygienic machine wash",
+                "Neatly folded & packed",
+                "2-day delivery after pickup",
+            ],
+            "service_key": "Plan Lite (Up to 5 kg) — ₱1,280",
+        },
+        {
+            "tag": "Full Load",
+            "name": "Plan Max",
+            "price": "₱1,680",
+            "featured": True,
+            "features": [
+                "4 large bags (up to 8–9 kg each)",
+                "Dedicated hygienic machine wash",
+                "Neatly folded & moisture-sealed",
+                "2-day delivery after pickup",
+            ],
+            "service_key": "Plan Max — 4 Large Bags (up to 8–9 kg each) — ₱1,680",
+        },
+        {
+            "tag": "Pressing Bundle",
+            "name": "Plan Iron",
+            "price": "₱2,480",
+            "featured": False,
+            "features": [
+                "4 small bags (up to 5 kg each)",
+                "Includes 24 pcs iron service",
+                "Crisp ready-to-wear pressing",
+                "2-day delivery after pickup",
+            ],
+            "service_key": "Plan Iron — 4 Small Bags (up to 5 kg each) + 24 pcs Iron — ₱2,480",
+        },
+        {
+            "tag": "All-In-One Care",
+            "name": "Plan Wash & Iron",
+            "price": "₱2,880",
+            "featured": False,
+            "features": [
+                "4 large bags (up to 8–9 kg each)",
+                "Includes 24 pcs iron service",
+                "Folded & pressed neatly",
+                "2-day delivery after pickup",
+            ],
+            "service_key": "Plan Wash & Iron — 4 Large Bags (8–9 kg each) + 24 pcs Iron — ₱2,880",
+        },
+    ]
+
+    cols = st.columns(4)
+    for col, p in zip(cols, plans):
+        with col:
+            card_cls = "ui-card featured" if p["featured"] else "ui-card"
+            badge_html = '<div class="pop-pill">Most Popular</div>' if p["featured"] else ""
+            feats_html = "".join(f"<li>{item}</li>" for
