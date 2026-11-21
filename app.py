@@ -10,8 +10,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+
+def get_webhook_url() -> str:
+    try:
+        return st.secrets.get("SHEETS_WEBHOOK_URL", "")
+    except Exception:
+        return ""
+
+
 # =====================================================================
-# BRANCH SETTINGS & OPTIONAL GOOGLE SHEETS WEBHOOK
+# BRANCH SETTINGS
 # =====================================================================
 BRANCH = {
     "name": "Mr Jeff Laundry",
@@ -23,7 +31,7 @@ BRANCH = {
     "landline": "+63270899423",
     "facebook": "https://www.facebook.com/mrjeff.qc.erod",
     "messenger": "https://www.facebook.com/mrjeff.qc.erod",
-    "sheets_webhook_url": st.secrets.get("SHEETS_WEBHOOK_URL", ""),
+    "sheets_webhook_url": get_webhook_url(),
 }
 
 PAGES = ["Home", "Subscription Plans", "Rates & Services", "Schedule Pickup", "FAQ & Store Info"]
@@ -65,238 +73,232 @@ def go_to(page: str, service: str | None = None):
 # =====================================================================
 st.markdown(
     """
-    <style>
-    /* Hide Streamlit default chrome */
-    #MainMenu, footer, header[data-testid="stHeader"], [data-testid="stToolbar"] {
-        visibility: hidden;
-        height: 0;
-    }
-    .block-container {
-        max-width: 1060px;
-        padding-top: 1.1rem !important;
-        padding-bottom: 2.5rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
+<style>
+#MainMenu, footer, header[data-testid="stHeader"], [data-testid="stToolbar"] {
+    visibility: hidden;
+    height: 0;
+}
+.block-container {
+    max-width: 1060px;
+    padding-top: 1.1rem !important;
+    padding-bottom: 2.5rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
 
-    /* Brand Header */
-    .brand-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding-bottom: 12px;
-        margin-bottom: 10px;
-        border-bottom: 1px solid #E2E8F0;
-    }
-    .brand-left {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-    }
-    .brand-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
-        background: #00A8E8;
-        color: #FFFFFF;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        box-shadow: 0 4px 12px rgba(0, 168, 232, 0.25);
-    }
-    .brand-title {
-        font-size: 20px;
-        font-weight: 800;
-        color: #1A2530;
-        line-height: 1.15;
-    }
-    .brand-title span { color: #00A8E8; }
-    .brand-sub {
-        font-size: 12px;
-        font-weight: 600;
-        color: #64748B;
-    }
-    .brand-hours {
-        font-size: 12.5px;
-        font-weight: 600;
-        color: #0088BD;
-        background: #EBF7FD;
-        padding: 6px 13px;
-        border-radius: 999px;
-    }
+/* Brand Header */
+.brand-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #E2E8F0;
+}
+.brand-left {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: #00A8E8;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0, 168, 232, 0.25);
+}
+.brand-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1A2530;
+    line-height: 1.15;
+}
+.brand-title span { color: #00A8E8; }
+.brand-sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+}
+.brand-hours {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #0088BD;
+    background: #EBF7FD;
+    padding: 6px 13px;
+    border-radius: 999px;
+}
 
-    /* Style horizontal radio as pill navigation bar */
-    div[data-testid="stRadio"] > div {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        background: #FFFFFF;
-        padding: 6px;
-        border-radius: 14px;
-        border: 1px solid #E2E8F0;
-        margin-bottom: 12px;
-    }
-    div[data-testid="stRadio"] label {
-        background: transparent;
-        padding: 6px 14px !important;
-        border-radius: 10px !important;
-        margin: 0 !important;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-    div[data-testid="stRadio"] label:has(input:checked) {
-        background: #00A8E8 !important;
-    }
-    div[data-testid="stRadio"] label:has(input:checked) p {
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
-    }
-    div[data-testid="stRadio"] label p {
-        font-size: 13.5px !important;
-        font-weight: 600 !important;
-        color: #475569 !important;
-    }
-    div[data-testid="stRadio"] input[type="radio"] {
-        display: none;
-    }
+/* Pill Navigation Bar (Hide default radio circles) */
+div[data-testid="stRadio"] > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: #FFFFFF;
+    padding: 6px;
+    border-radius: 14px;
+    border: 1px solid #E2E8F0;
+    margin-bottom: 12px;
+}
+div[data-testid="stRadio"] label {
+    background: transparent;
+    padding: 7px 15px !important;
+    border-radius: 10px !important;
+    margin: 0 !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+div[data-testid="stRadio"] label > div:first-child {
+    display: none !important;
+}
+div[data-testid="stRadio"] label:has(input:checked) {
+    background: #00A8E8 !important;
+}
+div[data-testid="stRadio"] label:has(input:checked) p {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+div[data-testid="stRadio"] label p {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+}
 
-    /* Cards & Hero */
-    .hero-box {
-        background: linear-gradient(135deg, #FFFFFF 0%, #E8F6FD 100%);
-        border: 1px solid #D4ECF9;
-        border-radius: 22px;
-        padding: 28px 24px;
-        margin-bottom: 16px;
-    }
-    .eyebrow {
-        display: inline-block;
-        background: #EBF7FD;
-        color: #0088BD;
-        font-size: 12px;
-        font-weight: 700;
-        padding: 5px 13px;
-        border-radius: 999px;
-        margin-bottom: 12px;
-    }
-    .hero-title {
-        font-size: 32px;
-        font-weight: 800;
-        line-height: 1.18;
-        color: #1A2530;
-        margin-bottom: 10px;
-    }
-    .hero-title span { color: #00A8E8; }
-    .hero-desc {
-        font-size: 15px;
-        color: #475569;
-        line-height: 1.55;
-        margin-bottom: 14px;
-    }
-    .trust-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #334155;
-    }
-
-    .ui-card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 18px;
-        padding: 20px 18px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 14px rgba(26, 37, 48, 0.03);
-    }
-    .ui-card.featured {
-        border: 2px solid #00A8E8;
-        background: linear-gradient(180deg, #F4FBFF 0%, #FFFFFF 35%);
-    }
-    .pop-pill {
-        display: inline-block;
-        background: #00A8E8;
-        color: #FFFFFF;
-        font-size: 10.5px;
-        font-weight: 800;
-        text-transform: uppercase;
-        padding: 3px 10px;
-        border-radius: 999px;
-        margin-bottom: 6px;
-    }
-    .card-tag {
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #00A8E8;
-        margin-bottom: 2px;
-    }
-    .card-title {
-        font-size: 19px;
-        font-weight: 800;
-        color: #1A2530;
-        margin-bottom: 6px;
-    }
-    .card-price {
-        font-size: 26px;
-        font-weight: 800;
-        color: #1A2530;
-        padding: 8px 0;
-        margin: 8px 0 10px;
-        border-top: 1px solid #F1F5F9;
-        border-bottom: 1px solid #F1F5F9;
-    }
-    .card-price span { font-size: 13px; font-weight: 500; color: #64748B; }
-    .feat-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        font-size: 13.5px;
-        color: #334155;
-        line-height: 1.75;
-    }
-    .feat-list li::before {
-        content: "✓ ";
-        color: #00A8E8;
-        font-weight: 800;
-    }
-
-    .rate-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 12px;
-        background: #F8FAFC;
-        border: 1px solid #F1F5F9;
-        border-radius: 12px;
-        margin-bottom: 8px;
-    }
-    .rate-row strong { display: block; font-size: 14px; color: #1A2530; }
-    .rate-row small { font-size: 12px; color: #64748B; }
-    .rate-price { font-size: 15px; font-weight: 800; color: #0088BD; white-space: nowrap; }
-
-    .pay-chip {
-        display: inline-block;
-        background: #EBF7FD;
-        color: #0088BD;
-        font-size: 12px;
-        font-weight: 700;
-        padding: 4px 11px;
-        border-radius: 999px;
-        margin: 3px 4px 3px 0;
-    }
-
-    /* Streamlit buttons */
-    div.stButton > button {
-        border-radius: 999px !important;
-        font-weight: 700 !important;
-        padding: 0.5rem 1.2rem !important;
-    }
-    </style>
-    """,
+/* Hero & Cards */
+.hero-box {
+    background: linear-gradient(135deg, #FFFFFF 0%, #E8F6FD 100%);
+    border: 1px solid #D4ECF9;
+    border-radius: 22px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+}
+.eyebrow {
+    display: inline-block;
+    background: #EBF7FD;
+    color: #0088BD;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 13px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+}
+.hero-title {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.18;
+    color: #1A2530;
+    margin-bottom: 10px;
+}
+.hero-title span { color: #00A8E8; }
+.hero-desc {
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.55;
+    margin-bottom: 14px;
+}
+.trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+.ui-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 18px;
+    padding: 20px 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 14px rgba(26, 37, 48, 0.03);
+}
+.ui-card.featured {
+    border: 2px solid #00A8E8;
+    background: linear-gradient(180deg, #F4FBFF 0%, #FFFFFF 35%);
+}
+.pop-pill {
+    display: inline-block;
+    background: #00A8E8;
+    color: #FFFFFF;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+}
+.card-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #00A8E8;
+    margin-bottom: 2px;
+}
+.card-title {
+    font-size: 19px;
+    font-weight: 800;
+    color: #1A2530;
+    margin-bottom: 6px;
+}
+.card-price {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1A2530;
+    padding: 8px 0;
+    margin: 8px 0 10px;
+    border-top: 1px solid #F1F5F9;
+    border-bottom: 1px solid #F1F5F9;
+}
+.card-price span { font-size: 13px; font-weight: 500; color: #64748B; }
+.feat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13.5px;
+    color: #334155;
+    line-height: 1.75;
+}
+.feat-list li::before {
+    content: "✓ ";
+    color: #00A8E8;
+    font-weight: 800;
+}
+.rate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+.rate-row strong { display: block; font-size: 14px; color: #1A2530; }
+.rate-row small { font-size: 12px; color: #64748B; }
+.rate-price { font-size: 15px; font-weight: 800; color: #0088BD; white-space: nowrap; }
+.pay-chip {
+    display: inline-block;
+    background: #EBF7FD;
+    color: #0088BD;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin: 3px 4px 3px 0;
+}
+div.stButton > button {
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    padding: 0.5rem 1.2rem !important;
+}
+</style>
+""",
     unsafe_allow_html=True,
 )
 
@@ -304,18 +306,14 @@ st.markdown(
 # TOP BRAND HEADER & NAVIGATION BAR
 # =====================================================================
 st.markdown(
-    f"""
-    <div class="brand-bar">
-        <div class="brand-left">
-            <div class="brand-icon">🧺</div>
-            <div>
-                <div class="brand-title">Mr Jeff <span>Laundry</span></div>
-                <div class="brand-sub">{BRANCH["branch"]}</div>
-            </div>
-        </div>
-        <div class="brand-hours">Mon–Sat &bull; 8:00 AM – 5:00 PM</div>
-    </div>
-    """,
+    f'<div class="brand-bar">'
+    f'<div class="brand-left">'
+    f'<div class="brand-icon">🧺</div>'
+    f'<div><div class="brand-title">Mr Jeff <span>Laundry</span></div>'
+    f'<div class="brand-sub">{BRANCH["branch"]}</div></div>'
+    f'</div>'
+    f'<div class="brand-hours">Mon–Sat &bull; 8:00 AM – 5:00 PM</div>'
+    f'</div>',
     unsafe_allow_html=True,
 )
 
@@ -334,21 +332,17 @@ page = st.session_state.active_page
 # =====================================================================
 if page == "Home":
     st.markdown(
-        """
-        <div class="hero-box">
-            <div class="eyebrow">Door-to-Door Laundry &amp; Dry Cleaning</div>
-            <div class="hero-title">The subscription that does the <span>laundry</span> for you</div>
-            <div class="hero-desc">
-                Monthly laundry plans and per-bag pickup &amp; delivery along E. Rodriguez Sr. Ave.
-                Fresh, neatly folded clothes delivered back to your door 2 days after pickup.
-            </div>
-            <div class="trust-row">
-                <span>● 2-Day Standard Delivery</span>
-                <span>● Same-Day Option (+₱100–₱200)</span>
-                <span>● Cash, GCash, Maya, BPI &amp; BDO</span>
-            </div>
-        </div>
-        """,
+        '<div class="hero-box">'
+        '<div class="eyebrow">Door-to-Door Laundry &amp; Dry Cleaning</div>'
+        '<div class="hero-title">The subscription that does the <span>laundry</span> for you</div>'
+        '<div class="hero-desc">Monthly laundry plans and per-bag pickup &amp; delivery along E. Rodriguez Sr. Ave. '
+        'Fresh, neatly folded clothes delivered back to your door 2 days after pickup.</div>'
+        '<div class="trust-row">'
+        '<span>● 2-Day Standard Delivery</span>'
+        '<span>● Same-Day Option (+₱100–₱200)</span>'
+        '<span>● Cash, GCash, Maya, BPI &amp; BDO</span>'
+        '</div>'
+        '</div>',
         unsafe_allow_html=True,
     )
 
@@ -380,41 +374,29 @@ if page == "Home":
     s1, s2, s3 = st.columns(3)
     with s1:
         st.markdown(
-            """
-            <div class="ui-card">
-                <div class="card-tag">Step 1</div>
-                <div class="card-title">Schedule Pickup</div>
-                <p style="font-size:13.5px; color:#475569; margin:0;">
-                    Choose your plan or per-bag load and submit your pickup date &amp; time window.
-                </p>
-            </div>
-            """,
+            '<div class="ui-card">'
+            '<div class="card-tag">Step 1</div>'
+            '<div class="card-title">Schedule Pickup</div>'
+            '<p style="font-size:13.5px; color:#475569; margin:0;">Choose your plan or per-bag load and submit your pickup date &amp; time window.</p>'
+            '</div>',
             unsafe_allow_html=True,
         )
     with s2:
         st.markdown(
-            """
-            <div class="ui-card">
-                <div class="card-tag">Step 2</div>
-                <div class="card-title">Wash, Iron &amp; Fold</div>
-                <p style="font-size:13.5px; color:#475569; margin:0;">
-                    Washed separately in sanitized machines, carefully pressed or folded, and packed fresh.
-                </p>
-            </div>
-            """,
+            '<div class="ui-card">'
+            '<div class="card-tag">Step 2</div>'
+            '<div class="card-title">Wash, Iron &amp; Fold</div>'
+            '<p style="font-size:13.5px; color:#475569; margin:0;">Washed separately in sanitized machines, carefully pressed or folded, and packed fresh.</p>'
+            '</div>',
             unsafe_allow_html=True,
         )
     with s3:
         st.markdown(
-            """
-            <div class="ui-card">
-                <div class="card-tag">Step 3</div>
-                <div class="card-title">Delivered in 2 Days</div>
-                <p style="font-size:13.5px; color:#475569; margin:0;">
-                    Delivered right to your door 2 days after pickup, or same-day express when needed.
-                </p>
-            </div>
-            """,
+            '<div class="ui-card">'
+            '<div class="card-tag">Step 3</div>'
+            '<div class="card-title">Delivered in 2 Days</div>'
+            '<p style="font-size:13.5px; color:#475569; margin:0;">Delivered right to your door 2 days after pickup, or same-day express when needed.</p>'
+            '</div>',
             unsafe_allow_html=True,
         )
 
@@ -486,18 +468,16 @@ elif page == "Subscription Plans":
             card_cls = "ui-card featured" if p["featured"] else "ui-card"
             badge_html = '<div class="pop-pill">Most Popular</div>' if p["featured"] else ""
             feats_html = "".join(f"<li>{item}</li>" for item in p["features"])
-            st.markdown(
-                f"""
-                <div class="{card_cls}">
-                    {badge_html}
-                    <div class="card-tag">{p["tag"]}</div>
-                    <div class="card-title">{p["name"]}</div>
-                    <div class="card-price">{p["price"]} <span>/ plan</span></div>
-                    <ul class="feat-list">{feats_html}</ul>
-                </div>
-                """,
-                unsafe_allow_html=True,
+            card_html = (
+                f'<div class="{card_cls}">'
+                f'{badge_html}'
+                f'<div class="card-tag">{p["tag"]}</div>'
+                f'<div class="card-title">{p["name"]}</div>'
+                f'<div class="card-price">{p["price"]} <span>/ plan</span></div>'
+                f'<ul class="feat-list">{feats_html}</ul>'
+                f'</div>'
             )
+            st.markdown(card_html, unsafe_allow_html=True)
             st.button(
                 f"Select {p['name']}",
                 key=f"btn_{p['name']}",
@@ -517,87 +497,48 @@ elif page == "Rates & Services":
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(
-            """
-            <div class="ui-card">
-                <div class="card-title">Regular Wash &amp; Fold</div>
-                <p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Everyday clothes, shirts, shorts, towels &amp; bedsheets</p>
-                <div class="rate-row">
-                    <div><strong>1 Large Bag</strong><small>6–9 kg capacity</small></div>
-                    <div class="rate-price">₱450</div>
-                </div>
-                <div class="rate-row" style="margin-bottom:0;">
-                    <div><strong>1 Small Bag</strong><small>1–5 kg capacity</small></div>
-                    <div class="rate-price">₱350</div>
-                </div>
-            </div>
-
-            <div class="ui-card">
-                <div class="card-title">Handwash &amp; Bulky Items</div>
-                <p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Gentle manual care &amp; oversized household items</p>
-                <div class="rate-row">
-                    <div><strong>Handwash</strong><small>Delicate garments (per kg)</small></div>
-                    <div class="rate-price">₱120 / kg</div>
-                </div>
-                <div class="rate-row">
-                    <div><strong>Comforters</strong><small>Depends on size &amp; thickness</small></div>
-                    <div class="rate-price">₱450–₱550</div>
-                </div>
-                <div class="rate-row">
-                    <div><strong>Rugs</strong><small>Deep clean (per kg)</small></div>
-                    <div class="rate-price">₱120 / kg</div>
-                </div>
-                <div class="rate-row" style="margin-bottom:0;">
-                    <div><strong>Stuffed Toys</strong><small>Depends on size</small></div>
-                    <div class="rate-price">₱250–₱450</div>
-                </div>
-            </div>
-            """,
+            '<div class="ui-card">'
+            '<div class="card-title">Regular Wash &amp; Fold</div>'
+            '<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Everyday clothes, shirts, shorts, towels &amp; bedsheets</p>'
+            '<div class="rate-row"><div><strong>1 Large Bag</strong><small>6–9 kg capacity</small></div><div class="rate-price">₱450</div></div>'
+            '<div class="rate-row" style="margin-bottom:0;"><div><strong>1 Small Bag</strong><small>1–5 kg capacity</small></div><div class="rate-price">₱350</div></div>'
+            '</div>'
+            '<div class="ui-card">'
+            '<div class="card-title">Handwash &amp; Bulky Items</div>'
+            '<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Gentle manual care &amp; oversized household items</p>'
+            '<div class="rate-row"><div><strong>Handwash</strong><small>Delicate garments (per kg)</small></div><div class="rate-price">₱120 / kg</div></div>'
+            '<div class="rate-row"><div><strong>Comforters</strong><small>Depends on size &amp; thickness</small></div><div class="rate-price">₱450–₱550</div></div>'
+            '<div class="rate-row"><div><strong>Rugs</strong><small>Deep clean (per kg)</small></div><div class="rate-price">₱120 / kg</div></div>'
+            '<div class="rate-row" style="margin-bottom:0;"><div><strong>Stuffed Toys</strong><small>Depends on size</small></div><div class="rate-price">₱250–₱450</div></div>'
+            '</div>',
             unsafe_allow_html=True,
         )
 
     with col2:
         st.markdown(
-            """
-            <div class="ui-card">
-                <div class="card-title">Heavywash</div>
-                <p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Deep wash for denim, thick towels, uniforms &amp; heavy fabrics</p>
-                <div class="rate-row">
-                    <div><strong>1 Large Bag</strong><small>6–8 kg capacity</small></div>
-                    <div class="rate-price">₱600</div>
-                </div>
-                <div class="rate-row" style="margin-bottom:0;">
-                    <div><strong>1 Small Bag</strong><small>1–5 kg capacity</small></div>
-                    <div class="rate-price">₱400</div>
-                </div>
-            </div>
-
-            <div class="ui-card">
-                <div class="card-title">Iron Services &amp; Dry Cleaning</div>
-                <p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Crisp pressing &amp; specialized garment care</p>
-                <div class="rate-row">
-                    <div><strong>Iron Services</strong><small>Per piece pressing</small></div>
-                    <div class="rate-price">₱70 / pc</div>
-                </div>
-                <div class="rate-row" style="margin-bottom:0;">
-                    <div><strong>Dry Cleaning</strong><small>Price depends on item &amp; material</small></div>
-                    <div class="rate-price">Custom Quote</div>
-                </div>
-            </div>
-
-            <div class="ui-card" style="background:#F4F8FB;">
-                <div class="card-title" style="font-size:16px;">Delivery &amp; Accepted Payments</div>
-                <p style="font-size:13px; color:#475569; margin-bottom:8px;">
-                    Standard delivery is <strong>2 days after pickup</strong>. Same-day delivery is available for an additional <strong>₱100–₱200</strong>.
-                </p>
-                <div>
-                    <span class="pay-chip">Cash</span>
-                    <span class="pay-chip">GCash</span>
-                    <span class="pay-chip">Maya</span>
-                    <span class="pay-chip">BPI</span>
-                    <span class="pay-chip">BDO</span>
-                </div>
-            </div>
-            """,
+            '<div class="ui-card">'
+            '<div class="card-title">Heavywash</div>'
+            '<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Deep wash for denim, thick towels, uniforms &amp; heavy fabrics</p>'
+            '<div class="rate-row"><div><strong>1 Large Bag</strong><small>6–8 kg capacity</small></div><div class="rate-price">₱600</div></div>'
+            '<div class="rate-row" style="margin-bottom:0;"><div><strong>1 Small Bag</strong><small>1–5 kg capacity</small></div><div class="rate-price">₱400</div></div>'
+            '</div>'
+            '<div class="ui-card">'
+            '<div class="card-title">Iron Services &amp; Dry Cleaning</div>'
+            '<p style="font-size:12.5px; color:#64748B; margin-bottom:12px;">Crisp pressing &amp; specialized garment care</p>'
+            '<div class="rate-row"><div><strong>Iron Services</strong><small>Per piece pressing</small></div><div class="rate-price">₱70 / pc</div></div>'
+            '<div class="rate-row" style="margin-bottom:0;"><div><strong>Dry Cleaning</strong><small>Price depends on item &amp; material</small></div><div class="rate-price">Custom Quote</div></div>'
+            '</div>'
+            '<div class="ui-card" style="background:#F4F8FB;">'
+            '<div class="card-title" style="font-size:16px;">Delivery &amp; Accepted Payments</div>'
+            '<p style="font-size:13px; color:#475569; margin-bottom:8px;">Standard delivery is <strong>2 days after pickup</strong>. Same-day delivery is available for an additional <strong>₱100–₱200</strong>.</p>'
+            '<div>'
+            '<span class="pay-chip">Cash</span>'
+            '<span class="pay-chip">GCash</span>'
+            '<span class="pay-chip">Maya</span>'
+            '<span class="pay-chip">BPI</span>'
+            '<span class="pay-chip">BDO</span>'
+            '</div>'
+            '</div>',
             unsafe_allow_html=True,
         )
 
@@ -616,7 +557,6 @@ elif page == "Schedule Pickup":
     st.markdown("## Schedule Your Laundry Pickup")
     st.caption(f"{BRANCH['address']} • {BRANCH['hours']}")
 
-    # Direct one-tap channel buttons
     b1, b2, b3 = st.columns(3)
     with b1:
         st.link_button(
@@ -700,7 +640,6 @@ elif page == "Schedule Pickup":
             if notes.strip():
                 order_summary += f"\n• Notes: {notes.strip()}"
 
-            # Optional: Log automatically to Google Sheets if webhook URL is set
             if BRANCH["sheets_webhook_url"]:
                 try:
                     requests.post(
@@ -773,23 +712,21 @@ elif page == "FAQ & Store Info":
     with right:
         st.markdown("## Branch & Contact Details")
         st.markdown(
-            f"""
-            <div class="ui-card">
-                <div class="card-tag">Branch Location</div>
-                <div class="card-title">{BRANCH["branch"]}</div>
-                <p style="font-size:13.5px; color:#334155; margin-bottom:12px;">{BRANCH["address"]}</p>
-                <p style="font-size:13.5px; margin-bottom:6px;"><strong>Hours:</strong> {BRANCH["hours"]}</p>
-                <p style="font-size:13.5px; margin-bottom:6px;"><strong>Viber / Mobile:</strong> <a href="tel:{BRANCH['mobile']}" style="color:#0088BD; text-decoration:none; font-weight:700;">{BRANCH["mobile"]}</a></p>
-                <p style="font-size:13.5px; margin-bottom:6px;"><strong>Landline:</strong> <a href="tel:{BRANCH['landline']}" style="color:#0088BD; text-decoration:none; font-weight:700;">{BRANCH["landline"]}</a></p>
-                <p style="font-size:13.5px; margin-bottom:12px;"><strong>Facebook:</strong> <a href="{BRANCH['facebook']}" target="_blank" style="color:#0088BD; text-decoration:none; font-weight:700;">facebook.com/mrjeff.qc.erod</a></p>
-                <div>
-                    <span class="pay-chip">Cash</span>
-                    <span class="pay-chip">GCash</span>
-                    <span class="pay-chip">Maya</span>
-                    <span class="pay-chip">BPI</span>
-                    <span class="pay-chip">BDO</span>
-                </div>
-            </div>
-            """,
+            f'<div class="ui-card">'
+            f'<div class="card-tag">Branch Location</div>'
+            f'<div class="card-title">{BRANCH["branch"]}</div>'
+            f'<p style="font-size:13.5px; color:#334155; margin-bottom:12px;">{BRANCH["address"]}</p>'
+            f'<p style="font-size:13.5px; margin-bottom:6px;"><strong>Hours:</strong> {BRANCH["hours"]}</p>'
+            f'<p style="font-size:13.5px; margin-bottom:6px;"><strong>Viber / Mobile:</strong> <a href="tel:{BRANCH["mobile"]}" style="color:#0088BD; text-decoration:none; font-weight:700;">{BRANCH["mobile"]}</a></p>'
+            f'<p style="font-size:13.5px; margin-bottom:6px;"><strong>Landline:</strong> <a href="tel:{BRANCH["landline"]}" style="color:#0088BD; text-decoration:none; font-weight:700;">{BRANCH["landline"]}</a></p>'
+            f'<p style="font-size:13.5px; margin-bottom:12px;"><strong>Facebook:</strong> <a href="{BRANCH["facebook"]}" target="_blank" style="color:#0088BD; text-decoration:none; font-weight:700;">facebook.com/mrjeff.qc.erod</a></p>'
+            f'<div>'
+            f'<span class="pay-chip">Cash</span>'
+            f'<span class="pay-chip">GCash</span>'
+            f'<span class="pay-chip">Maya</span>'
+            f'<span class="pay-chip">BPI</span>'
+            f'<span class="pay-chip">BDO</span>'
+            f'</div>'
+            f'</div>',
             unsafe_allow_html=True,
         )
