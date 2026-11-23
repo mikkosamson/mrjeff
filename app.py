@@ -30,7 +30,7 @@ BRANCH = {
     "mobile": "+639772432513",
     "landline": "+63270899423",
     "facebook": "https://www.facebook.com/mrjeff.qc.erod",
-    "messenger": "https://m.me/mrjeff.qc.erod",
+    "messenger": "https://www.facebook.com/mrjeff.qc.erod",
     "sheets_webhook_url": get_webhook_url(),
 }
 
@@ -185,9 +185,9 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     color: #0088BD !important;
 }
 
-/* Mobile Header & Quick Page Switcher (Hidden on Desktop) */
+/* Hide mobile header & dropdown completely on desktop */
 .mobile-header,
-div[data-testid="stElementContainer"]:has(.mobile-nav-flag) {
+.mobile-only-nav {
     display: none !important;
 }
 
@@ -223,11 +223,11 @@ div[data-testid="stElementContainer"]:has(.mobile-nav-flag) {
         white-space: nowrap;
         flex-shrink: 0;
     }
-    div[data-testid="stElementContainer"]:has(.mobile-nav-flag) {
+    .mobile-only-nav {
         display: block !important;
         margin-bottom: 14px;
     }
-    div[data-testid="stElementContainer"]:has(.mobile-nav-flag) div[data-testid="stSelectbox"] > div > div {
+    .mobile-only-nav div[data-testid="stSelectbox"] > div > div {
         background: #FFFFFF !important;
         border: 1.5px solid #00A8E8 !important;
         border-radius: 12px !important;
@@ -411,7 +411,7 @@ for idx, (col, p_name) in enumerate(zip(nav_cols, PAGES)):
         )
 
 # =====================================================================
-# 2. MOBILE CLEAN HEADER + INSTANT PAGE SWITCHER
+# 2. MOBILE CLEAN HEADER + INSTANT PAGE SWITCHER (HIDDEN ON WEB)
 # =====================================================================
 st.markdown(
     f"""
@@ -425,14 +425,11 @@ st.markdown(
 </div>
 <div class="mobile-badge">8AM–5PM</div>
 </div>
+<div class="mobile-only-nav">
 """,
     unsafe_allow_html=True,
 )
 
-st.markdown(
-    """<span class="mobile-nav-flag" style="display:none;"></span>""",
-    unsafe_allow_html=True,
-)
 st.selectbox(
     "Page",
     PAGES,
@@ -441,6 +438,8 @@ st.selectbox(
     on_change=on_mobile_select,
     label_visibility="collapsed",
 )
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 page = st.session_state.active_page
 
