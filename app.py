@@ -74,12 +74,8 @@ def go_to(page: str, service: str | None = None):
     st.session_state.active_page = page
 
 
-def on_mobile_select():
-    st.session_state.active_page = st.session_state.mob_page_selector
-
-
 # =====================================================================
-# FULL-WIDTH STYLING & RESPONSIVE NAVBAR / MOBILE MENU
+# FULL-WIDTH STYLING & SINGLE RESPONSIVE NAVIGATION BAR
 # =====================================================================
 st.markdown(
     """
@@ -102,7 +98,7 @@ header[data-testid="stHeader"] {
     padding-left: 2rem !important;
     padding-right: 2rem !important;
 }
-.desktop-header {
+.site-header {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 16px;
@@ -111,6 +107,7 @@ header[data-testid="stHeader"] {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 12px;
 }
 .brand-left {
@@ -154,11 +151,11 @@ header[data-testid="stHeader"] {
     white-space: nowrap;
 }
 
-/* Desktop Nav Bar */
-div[data-testid="stElementContainer"]:has(.desktop-nav-flag) {
+/* Single Unified Navigation Bar */
+div[data-testid="stElementContainer"]:has(.nav-flag) {
     display: none !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) {
+div[data-testid="stHorizontalBlock"]:has(.nav-flag) {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 14px;
@@ -166,7 +163,7 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) {
     margin-bottom: 14px;
     align-items: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button {
+div[data-testid="stHorizontalBlock"]:has(.nav-flag) button {
     border-radius: 10px !important;
     font-weight: 700 !important;
     font-size: 13.5px !important;
@@ -174,21 +171,15 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button {
     width: 100% !important;
     margin: 0 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="secondary"] {
+div[data-testid="stHorizontalBlock"]:has(.nav-flag) button[kind="secondary"] {
     background: #F8FAFC !important;
     border: 1px solid #E2E8F0 !important;
     color: #334155 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="secondary"]:hover {
+div[data-testid="stHorizontalBlock"]:has(.nav-flag) button[kind="secondary"]:hover {
     background: #EBF7FD !important;
     border-color: #00A8E8 !important;
     color: #0088BD !important;
-}
-
-/* Hide mobile header & dropdown completely on desktop */
-.mobile-header,
-.mobile-only-nav {
-    display: none !important;
 }
 
 @media (max-width: 768px) {
@@ -198,44 +189,16 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
         padding-left: 0.85rem !important;
         padding-right: 0.85rem !important;
     }
-    .desktop-header,
-    div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) {
-        display: none !important;
-    }
-    .mobile-header {
-        display: flex !important;
-        align-items: center;
-        justify-content: space-between;
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
+    .site-header {
         padding: 12px 14px;
-        margin-bottom: 10px;
-        gap: 10px;
-    }
-    .mobile-badge {
-        font-size: 11px;
-        font-weight: 700;
-        color: #0088BD;
-        background: #EBF7FD;
-        padding: 5px 10px;
-        border-radius: 999px;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-    .mobile-only-nav {
-        display: block !important;
-        margin-bottom: 14px;
-    }
-    .mobile-only-nav div[data-testid="stSelectbox"] > div > div {
-        background: #FFFFFF !important;
-        border: 1.5px solid #00A8E8 !important;
-        border-radius: 12px !important;
-        font-weight: 700 !important;
-        color: #1A2530 !important;
     }
     .brand-title { font-size: 16.5px; }
     .brand-sub { font-size: 11px; }
+    .brand-hours { font-size: 11px; padding: 5px 10px; }
+    div[data-testid="stHorizontalBlock"]:has(.nav-flag) button {
+        font-size: 12.5px !important;
+        padding: 0.5rem 0.6rem !important;
+    }
     .hero-box { padding: 20px 18px !important; }
     .hero-title { font-size: 25px !important; }
     .hero-desc { font-size: 14px !important; }
@@ -271,7 +234,7 @@ div[data-testid="stHorizontalBlock"]:has(.desktop-nav-flag) button[kind="seconda
     color: #475569;
     line-height: 1.55;
     margin-bottom: 14px;
-    max-width: 780px;
+    width: 100%;
 }
 .trust-row {
     display: flex;
@@ -374,11 +337,11 @@ div.stButton > button {
 )
 
 # =====================================================================
-# 1. DESKTOP FULL-WIDTH HEADER + FULL-WIDTH NAVIGATION BAR
+# HEADER & SINGLE NAVIGATION BAR
 # =====================================================================
 st.markdown(
     f"""
-<div class="desktop-header">
+<div class="site-header">
 <div class="brand-left">
 <div class="brand-icon">🧺</div>
 <div>
@@ -397,49 +360,18 @@ for idx, (col, p_name) in enumerate(zip(nav_cols, PAGES)):
     with col:
         if idx == 0:
             st.markdown(
-                """<span class="desktop-nav-flag" style="display:none;"></span>""",
+                """<span class="nav-flag" style="display:none;"></span>""",
                 unsafe_allow_html=True,
             )
         is_active = st.session_state.active_page == p_name
         st.button(
             p_name,
-            key=f"desk_nav_{p_name}",
+            key=f"nav_{p_name}",
             type="primary" if is_active else "secondary",
             use_container_width=True,
             on_click=go_to,
             args=(p_name,),
         )
-
-# =====================================================================
-# 2. MOBILE CLEAN HEADER + INSTANT PAGE SWITCHER (HIDDEN ON WEB)
-# =====================================================================
-st.markdown(
-    f"""
-<div class="mobile-header">
-<div class="brand-left">
-<div class="brand-icon" style="width:36px;height:36px;font-size:18px;">🧺</div>
-<div>
-<div class="brand-title">Mr Jeff <span>Laundry</span></div>
-<div class="brand-sub">{BRANCH["branch"]}</div>
-</div>
-</div>
-<div class="mobile-badge">8AM–5PM</div>
-</div>
-<div class="mobile-only-nav">
-""",
-    unsafe_allow_html=True,
-)
-
-st.selectbox(
-    "Page",
-    PAGES,
-    index=PAGES.index(st.session_state.active_page),
-    key="mob_page_selector",
-    on_change=on_mobile_select,
-    label_visibility="collapsed",
-)
-
-st.markdown("</div>", unsafe_allow_html=True)
 
 page = st.session_state.active_page
 
